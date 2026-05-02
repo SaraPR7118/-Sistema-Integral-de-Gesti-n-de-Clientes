@@ -135,3 +135,56 @@ class ServicioAsesoria(Servicio):
 
     def obtener_descripcion(self):
         return f"Asesoría: {self.nombre} (Precio/Sesión: {self.precio_base})"
+    
+    
+    class Reserva:
+    """
+    Integrates Cliente and Servicio. Manages duration and status.
+    Demonstrates advanced exception handling (else/finally/chaining).
+    """
+    def __init__(self, id_reserva, cliente, servicio, duracion):
+        # Validation: Duration must be positive
+        if duracion <= 0:
+            raise ValidationError("Duration must be a positive number.")
+        
+        self.id_reserva = id_reserva
+        self.cliente = cliente
+        self.servicio = servicio
+        self.duracion = duracion
+        self.estado = "PENDIENTE"
+        self.costo_total = 0
+
+    def procesar_confirmacion(self, **kwargs):
+        """
+        Confirms the reservation and calculates costs.
+        Uses try/except/else/finally and exception chaining.
+        """
+        print(f"\n--- Procesando Reserva #{self.id_reserva} ---")
+        try:
+            # We attempt to calculate the cost based on the specific service type
+            # Requirement: Polymorphism in action [cite: 24]
+            self.costo_total = self.servicio.calcular_costo(self.duracion, **kwargs)
+            
+        except ValidationError as ve:
+            # Exception Chaining: Raising a new exception while preserving context [cite: 17]
+            logging.error(f"Error en validación de Reserva {self.id_reserva}: {ve}")
+            raise ReservationError("No se pudo confirmar la reserva por datos inválidos.") from ve
+            
+        except Exception as e:
+            # Catch-all for unexpected errors to maintain system stability [cite: 11, 19]
+            logging.critical(f"Error inesperado en Reserva {self.id_reserva}: {e}")
+            raise SoftwareFJError("Error crítico interno del sistema.") from e
+            
+        else:
+            # Executes only if no exception was raised [cite: 17]
+            self.estado = "CONFIRMADA"
+            print(f"Éxito: Reserva confirmada para {self.cliente.nombre}.")
+            print(f"Servicio: {self.servicio.obtener_descripcion()}")
+            print(f"Total a pagar: ${self.costo_total}")
+            
+        finally:
+            # Always executes, regardless of success or failure [cite: 17]
+            print(f"Finalización del proceso de registro para ID: {self.id_reserva}")
+
+    def __str__(self):
+        return f"Reserva {self.id_reserva} - {self.estado} - Cliente: {self.cliente.nombre}"
