@@ -188,3 +188,84 @@ class ServicioAsesoria(Servicio):
 
     def __str__(self):
         return f"Reserva {self.id_reserva} - {self.estado} - Cliente: {self.cliente.nombre}"
+    
+    #PHASE 5
+    
+    def ejecutar_simulaciones():
+    """
+    Runs at least 10 operations to demonstrate stability and error handling.
+    Requirement: Simulation without a database[cite: 13, 32].
+    """
+    # Internal lists to act as volatile storage [cite: 12, 13]
+    listado_clientes = []
+    listado_reservas = []
+    
+    print("=== INICIANDO SIMULACIÓN SISTEMA SOFTWARE FJ ===")
+
+    # 1. Registro Válido de Cliente
+    try:
+        c1 = Cliente(101, "Juan Perez", "juan@unad.edu.co")
+        listado_clientes.append(c1)
+        print("Operación 1 (OK): Cliente registrado.")
+    except Exception as e:
+        print(f"Operación 1 (Error): {e}")
+
+    # 2. Registro Inválido de Cliente (Nombre corto) [cite: 19]
+    try:
+        c2 = Cliente(102, "Jo", "error@test.com") # Should fail
+    except ValidationError as e:
+        logging.warning(f"Simulación 2 detectó error esperado: {e}")
+        print(f"Operación 2 (OK - Error capturado): {e}")
+
+    # 3. Creación de Servicio de Sala
+    sala_conferencias = ServicioSala("Sala Magna", 50) # $50 per hour
+    print("Operación 3 (OK): Servicio de sala creado.")
+
+    # 4. Reserva Exitosa (Sala)
+    try:
+        r1 = Reserva("R-001", listado_clientes[0], sala_conferencias, 4)
+        r1.procesar_confirmacion(descuento=10) # Using overloaded parameter [cite: 26]
+        listado_reservas.append(r1)
+    except Exception as e:
+        print(f"Operación 4 (Error): {e}")
+
+    # 5. Reserva Fallida (Duración negativa) [cite: 19, 32]
+    try:
+        r2 = Reserva("R-002", listado_clientes[0], sala_conferencias, -2)
+        r2.procesar_confirmacion()
+    except ValidationError as e:
+        print(f"Operación 5 (OK - Error capturado): {e}")
+
+    # 6. Creación de Servicio de Asesoría
+    asesoria_it = ServicioAsesoria("Consultoría Python", 100)
+    print("Operación 6 (OK): Servicio de asesoría creado.")
+
+    # 7. Reserva Exitosa (Asesoría)
+    try:
+        r3 = Reserva("R-003", listado_clientes[0], asesoria_it, 2)
+        r3.procesar_confirmacion()
+        listado_reservas.append(r3)
+    except Exception as e:
+        print(f"Operación 7 (Error): {e}")
+
+    # 8. Registro de Cliente con Email Inválido [cite: 22]
+    try:
+        c3 = Cliente(103, "Ana Garcia", "anagarcia_at_provider.com") # Missing @
+    except ValidationError as e:
+        print(f"Operación 8 (OK - Error capturado): {e}")
+
+    # 9. Creación de Servicio de Equipo
+    laptop = ServicioEquipo("Laptop Gamer", 30)
+    print("Operación 9 (OK): Servicio de equipo creado.")
+
+    # 10. Reserva con parámetro faltante en cálculo (Simulando error de lógica)
+    try:
+        r4 = Reserva("R-004", listado_clientes[0], laptop, 3)
+        # We intentionally pass a wrong parameter name to see if it crashes or logs
+        r4.procesar_confirmacion(seguro="Texto en vez de numero") 
+    except Exception as e:
+        print(f"Operación 10 (OK - Error crítico manejado y registrado): {e}")
+
+    print("\n=== RESUMEN DE RESERVAS PROCESADAS ===")
+    for res in listado_reservas:
+        print(res)
