@@ -62,4 +62,37 @@ class Servicio(ABC):
         """Must be implemented to describe the specific service[cite: 24]."""
         pass
     
-    
+    class Cliente(Entity):
+    """
+    Represents a client with robust data validation and encapsulation[cite: 22].
+    """
+    def __init__(self, id_cliente, nombre, email):
+        super().__init__(id_cliente)
+        # We use setters to trigger validation during initialization
+        self.nombre = nombre
+        self.email = email
+
+    @property
+    def nombre(self):
+        return self._nombre
+
+    @nombre.setter
+    def nombre(self, valor):
+        # Validation: Name cannot be empty or just numbers [cite: 19]
+        if not valor or not isinstance(valor, str) or len(valor) < 3:
+            raise ValidationError(f"Invalid name: {valor}. Must be a string of at least 3 characters.")
+        self._nombre = valor
+
+    @property
+    def email(self):
+        return self._email
+
+    @email.setter
+    def email(self, valor):
+        # Basic validation: Must contain '@' and '.' [cite: 19]
+        if "@" not in valor or "." not in valor:
+            raise ValidationError(f"Invalid email format: {valor}.")
+        self._email = valor
+
+    def __str__(self):
+        return f"Cliente [ID: {self.id_entity}, Nombre: {self.nombre}, Email: {self.email}]"
