@@ -96,3 +96,42 @@ class Servicio(ABC):
 
     def __str__(self):
         return f"Cliente [ID: {self.id_entity}, Nombre: {self.nombre}, Email: {self.email}]"
+    
+    class ServicioSala(Servicio):
+    """Specialized service for Room Reservations[cite: 10, 24]."""
+    
+    def calcular_costo(self, horas, descuento=0):
+        """
+        Implementation of cost calculation with optional parameter (overloading simulation)[cite: 26].
+        """
+        if horas <= 0:
+            raise ValidationError("Hours must be greater than zero.")
+        total = (self.precio_base * horas) - descuento
+        return max(total, 0)
+
+    def obtener_descripcion(self):
+        return f"Servicio de Sala: {self.nombre} (Precio/Hr: {self.precio_base})"
+
+class ServicioEquipo(Servicio):
+    """Specialized service for Equipment Rental[cite: 10, 24]."""
+    
+    def calcular_costo(self, dias, seguro=10):
+        """Calculates cost based on days plus a mandatory insurance fee[cite: 26]."""
+        if dias <= 0:
+            raise ValidationError("Days must be greater than zero.")
+        return (self.precio_base * dias) + seguro
+
+    def obtener_descripcion(self):
+        return f"Alquiler de Equipo: {self.nombre} (Precio/Día: {self.precio_base})"
+
+class ServicioAsesoria(Servicio):
+    """Specialized service for Specialized Consultancy[cite: 10, 24]."""
+    
+    def calcular_costo(self, sesiones):
+        """Calculates cost based on flat session fees[cite: 24]."""
+        if sesiones <= 0:
+            raise ValidationError("Sessions must be greater than zero.")
+        return self.precio_base * sesiones
+
+    def obtener_descripcion(self):
+        return f"Asesoría: {self.nombre} (Precio/Sesión: {self.precio_base})"
