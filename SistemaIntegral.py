@@ -269,3 +269,29 @@ class ServicioAsesoria(Servicio):
     print("\n=== RESUMEN DE RESERVAS PROCESADAS ===")
     for res in listado_reservas:
         print(res)
+        
+    #PHASE 6
+    
+    # --- MAIN EXECUTION POINT ---
+# Requirement: A single functional project capable of executing without interruptions[cite: 33].
+
+if __name__ == "__main__":
+    try:
+        # We trigger the 10-operation simulation defined in Phase 5
+        ejecutar_simulaciones()
+        
+    except Exception as fatal_error:
+        # This is the last line of defense
+        # Every error must be logged 
+        logging.critical(f"CRITICAL SYSTEM FAILURE: {fatal_error}")
+        print(f"El sistema ha encontrado un error fatal inesperado: {fatal_error}")
+        
+    else:
+        print("\n" + "="*40)
+        print("SIMULACIÓN FINALIZADA CON ÉXITO")
+        print(f"Revise 'system_errors.log' para ver el registro de eventos.")
+        print("="*40)
+        
+    finally:
+        # Ensures the program gracefully notifies the user it is closing
+        print("Cerrando el sistema Software FJ...")
