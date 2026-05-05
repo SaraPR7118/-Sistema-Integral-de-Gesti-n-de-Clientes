@@ -1,0 +1,8 @@
+2026-05-01 21:58:06,682 - WARNING - Simulación 2 detectó error esperado: Invalid name: Jo. Must be a string of at least 3 characters.
+2026-05-04 20:52:24,369 - WARNING - Simulación 2 detectó error esperado: Invalid name: Jo. Must be a string of at least 3 characters.
+2026-05-04 20:52:31,417 - WARNING - Simulación 2 detectó error esperado: Invalid name: Jo. Must be a string of at least 3 characters.
+2026-05-04 20:53:14,952 - WARNING - Simulación 2 detectó error esperado: Invalid name: Jo. Must be a string of at least 3 characters.
+2026-05-04 20:55:33,362 - WARNING - Simulación 2 detectó error esperado: Invalid name: Jo. Must be a string of at least 3 characters.
+2026-05-04 21:20:20,543 - WARNING - Simulación 2 detectó error esperado: Invalid name: Jo. Must be a string of at least 3 characters.
+2026-05-04 21:35:48,029 - WARNING - Simulación 2 detectó error esperado: Invalid name: Jo. Must be a string of at least 3 characters.
+2026-05-04 21:35:48,031 - CRITICAL - Error inesperado en Reserva R-004: unsupported operand type(s) for +: 'int' and 'str'

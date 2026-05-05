@@ -2,6 +2,7 @@ import logging
 from abc import ABC, abstractmethod
 from datetime import datetime
 
+#Phase 1: Exceptions, Logging, and Base Abstractions
 # --- LOGGING CONFIGURATION ---
 # Requirement: Each error must be recorded in a log file[cite: 18, 31].
 logging.basicConfig(
@@ -62,9 +63,10 @@ class Servicio(ABC):
         """Must be implemented to describe the specific service[cite: 24]."""
         pass
     
-    class Cliente(Entity):
+    #Phase 2: The Cliente Class
+class Cliente(Entity):
     """
-    Represents a client with robust data validation and encapsulation[cite: 22].
+    Represents a client with robust data validation and encapsulation.
     """
     def __init__(self, id_cliente, nombre, email):
         super().__init__(id_cliente)
@@ -97,20 +99,28 @@ class Servicio(ABC):
     def __str__(self):
         return f"Cliente [ID: {self.id_entity}, Nombre: {self.nombre}, Email: {self.email}]"
     
-    class ServicioSala(Servicio):
-    """Specialized service for Room Reservations[cite: 10, 24]."""
+    #Phase 3: Specialized Services (Polymorphism)
+class Servicio(ABC):
+    def __init__(self, nombre, precio_base):
+        self.nombre = nombre
+        self.precio_base = precio_base
     
-    def calcular_costo(self, horas, descuento=0):
-        """
-        Implementation of cost calculation with optional parameter (overloading simulation)[cite: 26].
-        """
-        if horas <= 0:
-            raise ValidationError("Hours must be greater than zero.")
-        total = (self.precio_base * horas) - descuento
-        return max(total, 0)
+    @abstractmethod
+    def calcular_costo(self, *args, **kwargs):
+        pass
+class ServicioSala(Servicio):
+        """Specialized service for Room Reservations[cite: 10, 24].""" 
+        def calcular_costo(self, horas, descuento=0):
+            """
+            Implementation of cost calculation with optional parameter (overloading simulation)[cite: 26].
+            """
+            if horas <= 0:
+                raise ValidationError("Hours must be greater than zero.")
+            total = (self.precio_base * horas) - descuento
+            return max(total, 0)
 
-    def obtener_descripcion(self):
-        return f"Servicio de Sala: {self.nombre} (Precio/Hr: {self.precio_base})"
+        def obtener_descripcion(self):
+            return f"Servicio de Sala: {self.nombre} (Precio/Hr: {self.precio_base})"
 
 class ServicioEquipo(Servicio):
     """Specialized service for Equipment Rental[cite: 10, 24]."""
@@ -136,8 +146,9 @@ class ServicioAsesoria(Servicio):
     def obtener_descripcion(self):
         return f"Asesoría: {self.nombre} (Precio/Sesión: {self.precio_base})"
     
+    #Phase 4: The Reserva Class
     
-    class Reserva:
+class Reserva:
     """
     Integrates Cliente and Servicio. Manages duration and status.
     Demonstrates advanced exception handling (else/finally/chaining).
@@ -146,7 +157,7 @@ class ServicioAsesoria(Servicio):
         # Validation: Duration must be positive
         if duracion <= 0:
             raise ValidationError("Duration must be a positive number.")
-        
+            
         self.id_reserva = id_reserva
         self.cliente = cliente
         self.servicio = servicio
@@ -189,18 +200,21 @@ class ServicioAsesoria(Servicio):
     def __str__(self):
         return f"Reserva {self.id_reserva} - {self.estado} - Cliente: {self.cliente.nombre}"
     
-    #PHASE 5
+# Ohase 5: Controlador de Simulaciones 
+
+def ejecutar_simulaciones():
+    """
+    Ejecuta al menos 10 operaciones para demostrar estabilidad y manejo de errores.
+    Requisito: Simulación sin base de datos (uso de listas volátiles).
+    """
     
-    def ejecutar_simulaciones():
-    """
-    Runs at least 10 operations to demonstrate stability and error handling.
-    Requirement: Simulation without a database[cite: 13, 32].
-    """
-    # Internal lists to act as volatile storage [cite: 12, 13]
+    # Listas internas que actúan como almacenamiento volátil
     listado_clientes = []
     listado_reservas = []
     
+    print("\n" + "="*50)
     print("=== INICIANDO SIMULACIÓN SISTEMA SOFTWARE FJ ===")
+    print("="*50)
 
     # 1. Registro Válido de Cliente
     try:
@@ -210,31 +224,35 @@ class ServicioAsesoria(Servicio):
     except Exception as e:
         print(f"Operación 1 (Error): {e}")
 
-    # 2. Registro Inválido de Cliente (Nombre corto) [cite: 19]
+    # 2. Registro Inválido de Cliente (Nombre corto - Provoca ValidationError)
     try:
-        c2 = Cliente(102, "Jo", "error@test.com") # Should fail
+        c2 = Cliente(102, "Jo", "error@test.com") # Esto fallará intencionalmente
     except ValidationError as e:
         logging.warning(f"Simulación 2 detectó error esperado: {e}")
         print(f"Operación 2 (OK - Error capturado): {e}")
 
     # 3. Creación de Servicio de Sala
-    sala_conferencias = ServicioSala("Sala Magna", 50) # $50 per hour
+    # Importante: La clase ServicioSala debe estar definida arriba en el archivo
+    sala_conferencias = ServicioSala("Sala Magna", 50) 
     print("Operación 3 (OK): Servicio de sala creado.")
 
     # 4. Reserva Exitosa (Sala)
     try:
+        # Requiere que listado_clientes[0] exista (creado en Operación 1)
         r1 = Reserva("R-001", listado_clientes[0], sala_conferencias, 4)
-        r1.procesar_confirmacion(descuento=10) # Using overloaded parameter [cite: 26]
+        r1.procesar_confirmacion(descuento=10) # Parámetro opcional (sobrecarga)
         listado_reservas.append(r1)
     except Exception as e:
         print(f"Operación 4 (Error): {e}")
 
-    # 5. Reserva Fallida (Duración negativa) [cite: 19, 32]
+    # 5. Reserva Fallida (Duración negativa - Provoca ValidationError)
     try:
         r2 = Reserva("R-002", listado_clientes[0], sala_conferencias, -2)
         r2.procesar_confirmacion()
     except ValidationError as e:
         print(f"Operación 5 (OK - Error capturado): {e}")
+    except NameError:
+        print("Operación 5 (Error): La clase 'Reserva' no está definida antes de esta función.")
 
     # 6. Creación de Servicio de Asesoría
     asesoria_it = ServicioAsesoria("Consultoría Python", 100)
@@ -248,9 +266,9 @@ class ServicioAsesoria(Servicio):
     except Exception as e:
         print(f"Operación 7 (Error): {e}")
 
-    # 8. Registro de Cliente con Email Inválido [cite: 22]
+    # 8. Registro de Cliente con Email Inválido (Falta @)
     try:
-        c3 = Cliente(103, "Ana Garcia", "anagarcia_at_provider.com") # Missing @
+        c3 = Cliente(103, "Ana Garcia", "anagarcia_at_provider.com") 
     except ValidationError as e:
         print(f"Operación 8 (OK - Error capturado): {e}")
 
@@ -258,19 +276,22 @@ class ServicioAsesoria(Servicio):
     laptop = ServicioEquipo("Laptop Gamer", 30)
     print("Operación 9 (OK): Servicio de equipo creado.")
 
-    # 10. Reserva con parámetro faltante en cálculo (Simulando error de lógica)
+    # 10. Reserva con error de tipo (Simulando error crítico)
     try:
         r4 = Reserva("R-004", listado_clientes[0], laptop, 3)
-        # We intentionally pass a wrong parameter name to see if it crashes or logs
-        r4.procesar_confirmacion(seguro="Texto en vez de numero") 
+        # Pasamos un string donde se espera un número para forzar el catch de Exception
+        r4.procesar_confirmacion(seguro="Texto no numérico") 
     except Exception as e:
         print(f"Operación 10 (OK - Error crítico manejado y registrado): {e}")
 
-    print("\n=== RESUMEN DE RESERVAS PROCESADAS ===")
+    print("\n" + "="*50)
+    print("=== RESUMEN DE RESERVAS PROCESADAS ===")
+    print("="*50)
+    if not listado_reservas:
+        print("No se confirmaron reservas.")
     for res in listado_reservas:
         print(res)
-        
-    #PHASE 6
+    #Phase 6: Final Simulation Execution and Entry Point
     
     # --- MAIN EXECUTION POINT ---
 # Requirement: A single functional project capable of executing without interruptions[cite: 33].
